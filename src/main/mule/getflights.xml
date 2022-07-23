@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="dc5d1048-2d59-47b7-b747-506048e513b7" basePath="/api/sys/united/v1" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<sub-flow name="getflightsSubFlow" doc:id="6dbbbde6-8af3-46ef-a9cc-d49eb82a3b9e" >
+		<logger level="INFO" doc:name="Info: getflights flow Start Logger" doc:id="8cabc196-a2c1-4ba0-a96b-b2e64616405e" message="getflights flow Started"/>
+		<set-variable value="#[attributes.uriParams.destination]" doc:name="Set destination Variable" doc:id="fd276683-6a9d-445d-bb5f-4ac3c440d0aa" variableName="destination"/>
+		<http:request method="GET" doc:name="Request" doc:id="4f744dec-852d-4bec-8639-3e32706013aa" config-ref="HTTP_Request_configuration" path="/flights/{destination}">
+			<http:uri-params ><![CDATA[#[{
+	destination: vars.destination
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="3defe85a-ef75-4350-b902-aec7c212131f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+flightsInfo: payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Info: getflights flow EndLogger" doc:id="d6410215-142e-4c62-b59b-60e2a8fd7c84" message="getflights flow ended"/>
+	</sub-flow>
+</mule>
